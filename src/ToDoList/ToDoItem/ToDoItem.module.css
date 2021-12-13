@@ -1,0 +1,9 @@
+.toDoItem {
+  margin: 10px;
+  padding: 10px;
+  background-color: blueviolet;
+  text-align: left;
+  max-width: 500px;
+  border-radius: 5px;
+  cursor: pointer;
+}

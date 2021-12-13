@@ -1,0 +1,16 @@
+.toDoWrapperDiv {
+  display: flex;
+  flex-direction: column;
+}
+
+.toDoItemCompleted {
+  color: gray;
+}
+
+.toDoItemNotCompleted {
+  color: white;
+}
+
+.toDoItem:hover {
+  opacity: 0.8;
+}
