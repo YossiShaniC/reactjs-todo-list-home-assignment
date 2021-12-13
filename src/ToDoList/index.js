@@ -16,68 +16,58 @@ class ToDoList extends React.Component {
 
   componentDidMount() {
     api.getTodos().then((data) => {
-      console.log(data);
       this.setState({ toDoList: data, showWaiter: false });
     });
   }
 
+  handleSpecialClick = (id, index) => {
+    const stateCopy = JSON.parse(JSON.stringify(this.state));
+    //immutable array copy
+    const newArr = Array.from(this.state.toDoList);
+    //splice = delete the element
+    newArr.splice(index, 1);
+    this.setState({
+      toDoList: newArr
+    });
+    api.deleteTodo({ todoId: id }).catch(() => {
+      //revert state
+      this.setState({ ...stateCopy });
+    });
+  }
+
+
+  handleRegularClick = (id, index, completed) => {
+    //create state copy in order to restore it afterwards if needed
+    const stateCopy = JSON.parse(JSON.stringify(this.state));
+
+    const updateParams = { todoId: id, update: { completed: !completed } };
+    //get relevant element from array
+    const currElement = this.state.toDoList[index];
+    //create the updated element
+    const updatedObj = Object.assign({}, currElement, { completed: !completed });
+    //copy the array in order to do the splice, immutable array copy
+    const newArr = Array.from(this.state.toDoList);
+    //splice = replace the ekement with the updated one
+    newArr.splice(index, 1, updatedObj);
+
+    this.setState({
+      toDoList: newArr
+    });
+
+    api.updateTodo(updateParams).catch(() => {
+      //if failed, go back to previous situation
+      this.setState({ ...stateCopy });
+    });
+  }
+
   toDoItemClicked = (e, id, index, completed) => {
-    console.log(e, id);
-    if (e.ctrlKey) {
+    //if ctrl + click on windows or commade + click on mac
+    if (e.ctrlKey || e.metaKey) {
       //delete
-      //save element before delete in order to restore it if required
-      const currElement = this.state.toDoList[index];
-
-      const newArr = this.state.toDoList;
-      //splice = delete the element
-      newArr.splice(index, 1);
-
-      this.setState({
-        toDoList: newArr
-      });
-
-      api.deleteTodo({ todoId: id }).then((data) => {
-        if (data.statusText !== "OK") {
-          //not doing push cause I want to restore it to the same position in array
-          newArr.splice(index, 0, currElement);
-          this.setState({
-            toDoList: newArr
-          });
-        }
-      });
+      this.handleSpecialClick(id, index);
     } else {
       //toggle
-      const updateParams = { todoId: id, update: { completed: !completed } };
-      //get relevant element from array
-      const currElement = this.state.toDoList[index];
-      //create the updated element
-      const updatedObj = Object.assign(currElement, { completed: !completed });
-      //copy the array in order to do the splice
-      const newArr = this.state.toDoList;
-      //splice = replace the ekement with the updated one
-      newArr.splice(index, 1, updatedObj);
-
-      this.setState({
-        toDoList: newArr
-      });
-
-      api.updateTodo(updateParams).then((data) => {
-        //if failed, go back to previous situation
-        if (data.id !== id) {
-          //create the updated element - put the previous situation back
-          const updatedObj = Object.assign(currElement, {
-            completed: completed
-          });
-          //copy the array in order to do the splice
-          const newArr = this.state.toDoList;
-          //splice = replace the ekement with the updated one
-          newArr.splice(index, 1, updatedObj);
-
-          this.setState({
-            toDoList: newArr
-          });
-        }
-      });
+      this.handleRegularClick(id, index, completed);
     }
   };
 

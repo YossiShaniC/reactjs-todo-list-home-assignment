@@ -7,7 +7,7 @@ const ToDoItem = (props) => {
       className={classes.toDoItem}
       style={{
         color: props.val.completed ? "gray" : "white",
-        textDecoration: props.completed ? "line-through" : "none"
+        textDecoration: props.val.completed ? "line-through" : "none"
       }}
       onClick={(e) =>
         props.toDoItemClicked(e, props.val.id, props.index, props.val.completed)
